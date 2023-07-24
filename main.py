@@ -36,7 +36,7 @@ def insert_errors(c, errors):
         error = randrange(field)
         # making sure our random number is different then the original
         if error == c[location][1]:
-            c[location][1] = (c[location] + 1) % field
+            c[location][1] = (c[location]+ 1) % field
         else:
             c[location][1] = error
     print(f"Received message = {c}\n")
@@ -63,7 +63,7 @@ def rs_encoder(a, message):
 # *************** Unique Decoding ***************
 
 # Building a matrix from the equations
-# y_i * E(a_i) = N(a_i) 1 <= i <= n
+# yi * E(ai) = N(ai) 1 <= i <= n
 def build_matrix(a, c, n, k, e):
     matrix = []
     b = []
@@ -127,8 +127,6 @@ def unique_decoding(n, k, e, encoded_message):
 
 # *************** List Decoding ***************
 
-# Building a matrix from the equations
-# Q(a_i, y_i) = 0,  1 < = i <= n
 def build_matrix2(a, c, n, deg_x, deg_y):
     matrix = []
     for i in range(n):
@@ -139,8 +137,6 @@ def build_matrix2(a, c, n, deg_x, deg_y):
     return matrix
 
 
-# Generating a bi-variate polynomial of with deg_x and deg_y from a list of coefficients
-# Using Q(X, Y) = c_ij*X**i * y**j , 0 <= i <= deg_x, 0 <= j <= deg_y
 def build_bi_polynomial(coefficients, deg_x, deg_y):
     polynomial = 0
     x, y = PolynomialRing(GF(field), 2, ['x', 'y']).gens()
@@ -153,18 +149,13 @@ def build_bi_polynomial(coefficients, deg_x, deg_y):
 def build_q(matrix, n, deg_x, deg_y):
     M = MatrixSpace(GF(field), n, (deg_x + 1) * (deg_y + 1))
     A = M(matrix)
-    # Solving For x in A * x = 0
-    # Will generate multiple answers
     Qs = A.right_kernel_matrix(basis="computed")
     Q = []
-    # Generating a polynomial for each of the answers
     for coefficients in Qs:
         Q.append(build_bi_polynomial(coefficients, deg_x, deg_y))
     return Q
 
 
-# Checking the factor is in the form Y - P(x)
-# Additionally will check that the number of errors in P(x) < e
 def good_factor(factor, k, c, e):
     for degrees in factor.dict():
         if degrees[1] > 1 or (degrees[0] > 0 and degrees[1] >= 1) or degrees[0] >= k:
@@ -180,7 +171,6 @@ def good_factor(factor, k, c, e):
     return True
 
 
-# Testing all factors of Q(X, Y)
 def good_factors(qs, k, c, e):
     L = []
     y = PolynomialRing(GF(field), 1, 'y').gen()
@@ -193,7 +183,6 @@ def good_factors(qs, k, c, e):
 
 def list_decoding1(n, k, e, y):
     deg_x = math.floor(math.sqrt(n * (k - 1)))
-    # In original code l > 0, but found out this works instead and now we can use l = 0
     if deg_x == 0:
         deg_y = 1
     else:
@@ -205,7 +194,6 @@ def list_decoding1(n, k, e, y):
         c.append(pair[1])
     matrix = np.array(build_matrix2(a, c, n, deg_x, deg_y))
     qs = build_q(matrix, n, deg_x, deg_y)
-    # Don't want duplicate factors
     L = set(good_factors(qs, k, c, e))
 
     print(f"\nList Decoding :\n")
@@ -340,100 +328,19 @@ def test12():
     run(message, e, n)
 
 
-# TODO
 def test13():
     print("\nTest 13\n")
-    message = "a"
-    e = 0
-    n = 1
+    message = "error correcting codes"
+    e = 22
+    n = 95
     run(message, e, n)
 
 
 def test14():
     print("\nTest 14\n")
-    message = "a"
-    e = 1
-    n = 1
-    run(message, e, n)
-
-
-def test15():
-    print("\nTest 15\n")
-    message = "ab"
-    e = 0
-    n = 2
-    run(message, e, n)
-
-
-def test16():
-    print("\nTest 16\n")
-    message = "ab"
-    e = 1
-    n = 4
-    run(message, e, n)
-
-
-def test17():
-    print("\nTest 17\n")
-    message = "ab"
-    e = 2
-    n = 5
-    run(message, e, n)
-
-
-def test18():
-    print("\nTest 18\n")
-    message = "abc"
-    e = 2
-    n = 7
-    run(message, e, n)
-
-
-def test19():
-    print("\nTest 19\n")
-    message = "abc"
-    e = 2
-    n = 8
-    run(message, e, n)
-
-
-def test20():
-    print("\nTest 20\n")
-    message = "abc"
-    e = 3
-    n = 8
-    run(message, e, n)
-
-
-def test21():
-    print("\nTest 21\n")
-    message = "abc"
-    e = 3
-    n = 10
-    run(message, e, n)
-
-
-def test22():
-    print("\nTest 22\n")
-    message = "abc"
-    e = 4
-    n = 10
-    run(message, e, n)
-
-
-def test23():
-    print("\nTest 23\n")
-    message = "abc"
-    e = 15
-    n = 30
-    run(message, e, n)
-
-
-def test24():
-    print("\nTest 24\n")
-    message = "abc"
-    e = 18
-    n = 30
+    message = "error correcting codes"
+    e = 22
+    n = 94
     run(message, e, n)
 
 
@@ -452,17 +359,7 @@ def tests():
     test12()
     test13()
     test14()
-    test15()
-    test16()
-    test17()
-    test18()
-    test19()
-    test20()
-    test21()
-    test22()
-    test23()
-    test24()
 
 
 if __name__ == '__main__':
-    menu()
+    tests()
